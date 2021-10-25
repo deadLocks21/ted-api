@@ -56,16 +56,18 @@ class UsersController extends AppController
         $this->request->allowMethod(['get', 'post']);
         $result = $this->Authentication->getResult();
         if ($result->isValid()) {
-            $redirect = $this->request->getQuery('redirect', [
-                'controller' => 'Users',
-                'action' => 'index',
-            ]);
-
-            return $this->redirect($redirect);
+            $message = "You are logged";
         }
         if ($this->request->is('post') && !$result->isValid()) {
-            $this->Flash->error(__('Votre identifiant ou votre mot de passe est incorrect.'));
+            $message = "Your login or password is incorrect.";
         }
+
+        $this->set([
+            'message' => $message,
+        ]);
+        $this->viewBuilder()
+            ->setClassName('Json')
+            ->setOption('serialize', ['message']);
     }
 
     public function logout()
@@ -73,7 +75,13 @@ class UsersController extends AppController
         $result = $this->Authentication->getResult();
         if ($result->isValid()) {
             $this->Authentication->logout();
-            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+            
+            $this->set([
+                'message' => "Logged out",
+            ]);
+            $this->viewBuilder()
+                ->setClassName('Json')
+                ->setOption('serialize', ['message']);
         }
     }
 }

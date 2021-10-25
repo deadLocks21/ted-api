@@ -12,6 +12,10 @@ namespace App\Controller;
  */
 class TodolistsController extends AppController
 {
+    public function getUserId(): int
+    {
+        return $this->Authentication->getIdentity()->getIdentifier();
+    }
     /**
      * Index method
      *
@@ -19,7 +23,7 @@ class TodolistsController extends AppController
      */
     public function index()
     {
-        $todolists = $this->Todolists->find('all')->where('user = ' . $this->Authentication->getIdentity()->getIdentifier());
+        $todolists = $this->Todolists->find('all')->where('user = ' . $this->getUserId());
         $this->set('todolists', $todolists);
         $this->viewBuilder()->setClassName('Json')->setOption('serialize', ['todolists']);
     }
@@ -35,7 +39,7 @@ class TodolistsController extends AppController
         $todolist = $this->Todolists->newEmptyEntity();
         if ($this->request->is('post')) {
             $todolist = $this->Todolists->patchEntity($todolist, $this->request->getData());
-            $todolist->user = $this->Authentication->getIdentity()->getIdentifier();
+            $todolist->user = $this->getUserId();
             if ($this->Todolists->save($todolist)) {
                 $message = 'Created';
             } else {
@@ -66,7 +70,7 @@ class TodolistsController extends AppController
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $todolist = $this->Todolists->patchEntity($todolist, $this->request->getData());
-            if ($todolist->user == $this->Authentication->getIdentity()->getIdentifier()) {
+            if ($todolist->user == $this->getUserId()) {
                 if ($this->Todolists->save($todolist)) {
                     $message = 'Updated';
                 } else {
@@ -96,7 +100,7 @@ class TodolistsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $todolist = $this->Todolists->get($id);
-        if ($todolist->user == $this->Authentication->getIdentity()->getIdentifier()) {
+        if ($todolist->user == $this->getUserId()) {
             if ($this->Todolists->delete($todolist)) {
                 $message = 'Deleted';
             } else {
